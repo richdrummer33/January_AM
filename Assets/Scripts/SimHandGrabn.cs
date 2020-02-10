@@ -10,9 +10,14 @@ public class SimHandGrabn : MonoBehaviour
 
     public GameObject prefabForFun; // FOR FUN ONLY
 
+    public Animator handAnimator; // Open close hand
+
     private void OnTriggerEnter(Collider other)
     {
-        collidingObject = other.gameObject; // Taking note of what we're touching, so we can grab it on mouse click
+        if (other.gameObject.GetComponent<Rigidbody>() == true) // If this object we touch as a Rigidbody (physics object)
+        {
+            collidingObject = other.gameObject; // Taking note of what we're touching, so we can grab it on mouse click
+        }
     }
 
     private void OnTriggerExit(Collider other)
@@ -23,25 +28,51 @@ public class SimHandGrabn : MonoBehaviour
         }
     }
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
     // Update is called once per frame
     void Update()
     {
         // Grab inputs
         if (Input.GetKeyDown(KeyCode.Mouse0)) // Check ouse input
         {
-            // Perform a grab
-        }
+            if (collidingObject != null) // If collidingObject exists (null = empty)
+            {
+                Grab();
+            }
 
+            handAnimator.SetBool("IsClosed", true); // Close the hand
+        }
+        else if (Input.GetKeyUp(KeyCode.Mouse0))
+        {
+            if(heldObject != null) // If heldObject exists (null = empty)
+            {
+                Release();
+            }
+
+            handAnimator.SetBool("IsClosed", false);
+        }
+        
         // FOR FUN ONLY
         if(Input.GetKeyDown(KeyCode.Mouse1))
         {
             Instantiate(prefabForFun, transform.position, transform.rotation);
         }
+    }
+
+    void Grab()
+    {
+        collidingObject.GetComponent<Rigidbody>().isKinematic = true; // Not respond to gravity + forces
+
+        collidingObject.transform.parent = transform; // "transform" is this hand
+
+        heldObject = collidingObject; // To remember what we are holding
+    }
+
+    void Release()
+    {
+        heldObject.GetComponent<Rigidbody>().isKinematic = false;
+
+        heldObject.transform.parent = null; // unparent
+
+        heldObject = null; // "Forget" what we were just holding 
     }
 }
