@@ -12,6 +12,8 @@ public class SimHandGrabn : MonoBehaviour
 
     public Animator handAnimator; // Open close hand
 
+    #region Collision Detection
+
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.GetComponent<Rigidbody>() == true) // If this object we touch as a Rigidbody (physics object)
@@ -27,6 +29,8 @@ public class SimHandGrabn : MonoBehaviour
             collidingObject = null; // "Forget" that object
         }
     }
+
+    #endregion
 
     // Update is called once per frame
     void Update()
@@ -54,10 +58,14 @@ public class SimHandGrabn : MonoBehaviour
         // FOR FUN ONLY
         if(Input.GetKeyDown(KeyCode.Mouse1))
         {
-            Instantiate(prefabForFun, transform.position, transform.rotation);
+            GameObject newInstance = Instantiate(prefabForFun, transform.position, transform.rotation); // makes a clone of a prefab and gives us a reference to it (i.e. "returns" that new cloned object)
+
+            newInstance.GetComponent<Rigidbody>().AddForce(transform.forward * 15f, ForceMode.Impulse);
         }
     }
 
+    #region  Grab and Release
+    
     void Grab()
     {
         collidingObject.GetComponent<Rigidbody>().isKinematic = true; // Not respond to gravity + forces
@@ -75,4 +83,6 @@ public class SimHandGrabn : MonoBehaviour
 
         heldObject = null; // "Forget" what we were just holding 
     }
+
+    #endregion
 }
