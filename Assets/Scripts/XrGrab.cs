@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+// Applies to both hands
 public class XrGrab : MonoBehaviour
 {
     public GameObject collidingObject; // What we're touching
@@ -11,6 +12,10 @@ public class XrGrab : MonoBehaviour
     public GameObject prefabForFun; // FOR FUN ONLY
 
     public Animator handAnimator; // Open close hand
+
+    public string gripAxisInputName; // So can have this script work on either hand
+
+    bool gripIsHeld = false; // A flag to prevent the grab function from happening every frame (false by default)
 
     #region Collision Detection
 
@@ -37,7 +42,7 @@ public class XrGrab : MonoBehaviour
     void Update()
     {
         // Grab inputs
-        if (Input.GetAxis("Left Grip") > 0.5f) // Check ouse input
+        if (Input.GetAxis(gripAxisInputName) > 0.5f && gripIsHeld == false) // Check ouse input
         {
             if (collidingObject != null) // If collidingObject exists (null = empty)
             {
@@ -45,8 +50,10 @@ public class XrGrab : MonoBehaviour
             }
 
             handAnimator.SetBool("IsClosed", true); // Close the hand
+
+            gripIsHeld = true; // We are now holding the grip, so take note of that
         }
-        else if (Input.GetKeyUp(KeyCode.Mouse0))
+        else if (Input.GetAxis(gripAxisInputName) < 0.5f && gripIsHeld == true) // i.e. if the grip has been released (more 
         {
             if (heldObject != null) // If heldObject exists (null = empty)
             {
@@ -54,6 +61,8 @@ public class XrGrab : MonoBehaviour
             }
 
             handAnimator.SetBool("IsClosed", false);
+
+            gripIsHeld = false; // No longer being held, so take note of that
         }
 
         // FOR FUN ONLY
